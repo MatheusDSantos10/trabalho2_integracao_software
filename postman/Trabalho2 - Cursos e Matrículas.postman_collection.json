@@ -1,0 +1,87 @@
+{
+  "info": {
+    "_postman_id": "c5d1d989-4886-4c99-b27a-0e5a675a22d5",
+    "name": "Trabalho 2 - Cursos, Alunos e Matrículas",
+    "description": "Collection para testar a API Spring Boot. Execute primeiro os POSTs de curso e aluno e, em seguida, use as listagens para capturar seus IDs nas variáveis da collection. Depois execute os requests de matrícula.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "cursoId", "value": "1" },
+    { "key": "alunoId", "value": "1" },
+    { "key": "matriculaId", "value": "1" },
+    { "key": "cursoNome", "value": "Curso de Integração API" },
+    { "key": "alunoEmail", "value": "aluno.postman@example.com" }
+  ],
+  "item": [
+    {
+      "name": "Cursos",
+      "item": [
+        {
+          "name": "Cadastrar curso de exemplo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"{{cursoNome}}\",\n  \"cargaHoraria\": 40,\n  \"categoria\": \"Tecnologia\",\n  \"ativo\": true\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/cursos"
+          }
+        },
+        {
+          "name": "Listar cursos (captura cursoId)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const body = pm.response.json();", "const cursos = body.content || body;", "const curso = cursos.find(item => item.nome === pm.collectionVariables.get('cursoNome'));", "if (curso) pm.collectionVariables.set('cursoId', curso.id);", ""] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/cursos?page=0&size=10&sort=nome,asc" }
+        },
+        { "name": "Buscar curso por ID", "request": { "method": "GET", "url": "{{baseUrl}}/cursos/{{cursoId}}" } },
+        {
+          "name": "Atualizar curso",
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"{{cursoNome}}\",\n  \"cargaHoraria\": 60,\n  \"categoria\": \"Tecnologia\",\n  \"ativo\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/cursos/{{cursoId}}" }
+        },
+        { "name": "Excluir curso (use somente após remover matrículas)", "request": { "method": "DELETE", "url": "{{baseUrl}}/cursos/{{cursoId}}" } }
+      ]
+    },
+    {
+      "name": "Alunos",
+      "item": [
+        {
+          "name": "Cadastrar aluno de exemplo",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Aluno Postman\",\n  \"email\": \"{{alunoEmail}}\",\n  \"idade\": 20,\n  \"telefone\": \"11999990000\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/alunos" }
+        },
+        {
+          "name": "Listar alunos (captura alunoId)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const body = pm.response.json();", "const alunos = body.content || body;", "const aluno = alunos.find(item => item.email === pm.collectionVariables.get('alunoEmail'));", "if (aluno) pm.collectionVariables.set('alunoId', aluno.id);", ""] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/alunos?page=0&size=10&sort=nome,asc" }
+        },
+        { "name": "Buscar aluno por ID", "request": { "method": "GET", "url": "{{baseUrl}}/alunos/{{alunoId}}" } },
+        {
+          "name": "Atualizar aluno",
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Aluno Postman Atualizado\",\n  \"email\": \"{{alunoEmail}}\",\n  \"idade\": 21,\n  \"telefone\": \"11988887777\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/alunos/{{alunoId}}" }
+        },
+        { "name": "Excluir aluno (use somente após remover matrículas)", "request": { "method": "DELETE", "url": "{{baseUrl}}/alunos/{{alunoId}}" } }
+      ]
+    },
+    {
+      "name": "Matrículas",
+      "item": [
+        {
+          "name": "Realizar matrícula (captura matriculaId)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) {", "  const matricula = pm.response.json();", "  pm.collectionVariables.set('matriculaId', matricula.id);", "}", ""] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"dataMatricula\": \"2026-11-05\",\n  \"status\": \"ATIVA\",\n  \"cursoId\": {{cursoId}},\n  \"alunoId\": {{alunoId}}\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/matriculas" }
+        },
+        { "name": "Listar matrículas", "request": { "method": "GET", "url": "{{baseUrl}}/matriculas?page=0&size=10&sort=dataMatricula,desc" } },
+        { "name": "Buscar matrícula por ID", "request": { "method": "GET", "url": "{{baseUrl}}/matriculas/{{matriculaId}}" } },
+        {
+          "name": "Atualizar matrícula",
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"dataMatricula\": \"2026-11-05\",\n  \"status\": \"ATIVA\",\n  \"cursoId\": {{cursoId}},\n  \"alunoId\": {{alunoId}}\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/matriculas/{{matriculaId}}" }
+        },
+        { "name": "Cancelar matrícula", "request": { "method": "DELETE", "url": "{{baseUrl}}/matriculas/{{matriculaId}}" } }
+      ]
+    },
+    {
+      "name": "Validações e regras de negócio",
+      "item": [
+        { "name": "Tentativa de matrícula com aluno menor de 16 anos", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"dataMatricula\": \"2026-11-05\",\n  \"status\": \"ATIVA\",\n  \"cursoId\": {{cursoId}},\n  \"alunoId\": 999999\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/matriculas" } },
+        { "name": "Tentativa de matrícula com dados inválidos", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"dataMatricula\": null,\n  \"status\": \"\",\n  \"cursoId\": null,\n  \"alunoId\": null\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/matriculas" } }
+      ]
+    }
+  ]
+}
