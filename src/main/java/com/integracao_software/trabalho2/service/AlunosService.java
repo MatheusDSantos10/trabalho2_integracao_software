@@ -4,6 +4,7 @@ import com.integracao_software.trabalho2.dto.AlunoDto;
 import com.integracao_software.trabalho2.dto.AlunoResponseDto;
 import com.integracao_software.trabalho2.model.AlunosEntity;
 import com.integracao_software.trabalho2.repository.IAlunosRepository;
+import com.integracao_software.trabalho2.repository.IMatriculasRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.List;
 public class AlunosService {
 
     private final IAlunosRepository alunosRepository;
+    private final IMatriculasRepository matriculasRepository;
 
     public void cadastrarAluno(AlunoDto alunoDto){
         AlunosEntity aluno = alunosRepository.findByEmail(alunoDto.getEmail())
@@ -72,6 +74,10 @@ public class AlunosService {
 
         if(aluno == null){
             throw new RuntimeException("Aluno não encontrado!");
+        }
+
+        if(matriculasRepository.existsByAluno_Id(id)){
+            throw new RuntimeException("Não é possível deletar aluno com matrículas");
         }
 
         alunosRepository.delete(aluno);

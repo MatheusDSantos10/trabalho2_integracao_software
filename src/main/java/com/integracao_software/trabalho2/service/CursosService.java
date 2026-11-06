@@ -4,6 +4,7 @@ import com.integracao_software.trabalho2.dto.CursoDto;
 import com.integracao_software.trabalho2.dto.CursoResponseDto;
 import com.integracao_software.trabalho2.model.CursosEntity;
 import com.integracao_software.trabalho2.repository.ICursosRepository;
+import com.integracao_software.trabalho2.repository.IMatriculasRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.List;
 public class CursosService {
 
     private final ICursosRepository cursosRepository;
+    private final IMatriculasRepository matriculasRepository;
 
     public void cadastrarCurso(CursoDto cursoDto){
         CursosEntity curso = cursosRepository.findByNome(cursoDto.getNome())
@@ -71,6 +73,10 @@ public class CursosService {
 
         if(curso == null){
             throw new RuntimeException("Curso não encontrado!");
+        }
+
+        if(matriculasRepository.existsByCurso_Id(id)){
+            throw new RuntimeException("Não é possível deletar curso com matrículas");
         }
 
         cursosRepository.delete(curso);
